@@ -191,23 +191,20 @@ document
     .getElementById('modeBtn')
     .addEventListener('click', () => {
 
-        currentMode =
-            currentMode === "in"
-            ? "out"
-            : "in";
+        if(currentMode === "in"){
 
-        document.getElementById('modeBtn')
-            .innerText =
-                currentMode === "in"
-                ? "Режим: приток"
-                : "Режим: отток";
+            currentMode = "out";
 
-        resetStyles();
-        clearValueLabels();
+            modeBtn.innerText =
+                "Режим: отток";
 
-        document.getElementById('tablePanel').innerHTML = "";
-        document.getElementById('legend').innerHTML = "";
-    });
+        }else{
+
+            currentMode = "in";
+
+            modeBtn.innerText =
+                "Режим: приток";
+        }
 
 // -------------------------
 // 🔹 нормализация строк
