@@ -173,6 +173,8 @@ Egor D.   t.me/portoulan
 </style>
 
 <script>
+
+let currentMode = "in";
 let map;
 
 const state = {
@@ -184,7 +186,28 @@ const state = {
     regionNames: {},
     valueLabels: []
 };
-let currentMode = "in";
+
+document
+    .getElementById('modeBtn')
+    .addEventListener('click', () => {
+
+        currentMode =
+            currentMode === "in"
+            ? "out"
+            : "in";
+
+        document.getElementById('modeBtn')
+            .innerText =
+                currentMode === "in"
+                ? "Режим: приток"
+                : "Режим: отток";
+
+        resetStyles();
+        clearValueLabels();
+
+        document.getElementById('tablePanel').innerHTML = "";
+        document.getElementById('legend').innerHTML = "";
+    });
 
 // -------------------------
 // 🔹 нормализация строк
@@ -298,7 +321,10 @@ function initMap() {
 }
 
 function getRegionDisplayName(name) {
-    return .regionNames[norm(name)] || name;
+
+    return state.regionNames[
+        norm(name)
+    ] || name;
 }
 document
     .getElementById('modeBtn')
@@ -332,8 +358,12 @@ document
 // 🔹 очистка labels
 // -------------------------
 function clearValueLabels() {
-    .valueLabels.forEach(l => l.remove());
-    .valueLabels = [];
+
+    state.valueLabels.forEach(
+        l => l.remove()
+    );
+
+    state.valueLabels = [];
 }
 
 // -------------------------
@@ -348,17 +378,21 @@ function getSafeCenter(layer) {
 // 🔹 создание label
 // -------------------------
 function createLabel(latlng, value) {
+
     const icon = L.divIcon({
-        className: 'value-label',
-        html: `<div>${value}</div>`
+        className:'value-label',
+        html:`<div>${value}</div>`
     });
 
-    const marker = L.marker(latlng, {
-        icon,
-        interactive: false
-    }).addTo(map);
+    const marker = L.marker(
+        latlng,
+        {
+            icon,
+            interactive:false
+        }
+    ).addTo(map);
 
-    .valueLabels.push(marker);
+    state.valueLabels.push(marker);
 
     return marker;
 }
@@ -386,13 +420,18 @@ function getColor(value, max) {
 // 🔹 сброс стилей
 // -------------------------
 function resetStyles() {
-    Object.values(.regionLayers).forEach(layer => {
+
+    Object.values(
+        state.regionLayers
+    ).forEach(layer => {
+
         layer.setStyle({
-            color: '#666',
-            weight: 1,
-            fillColor: '#e5e5e5',
-            fillOpacity: 0.8
+            color:'#666',
+            weight:1,
+            fillColor:'#e5e5e5',
+            fillOpacity:0.8
         });
+
     });
 }
 
@@ -400,14 +439,23 @@ function resetStyles() {
 // 🔹 GeoJSON обработка
 // -------------------------
 function onEachFeature(feature, layer) {
-    const region = norm(feature.properties.prov_ENG);
 
-    if (!region) return;
+    const region =
+        norm(
+            feature.properties.prov_ENG
+        );
 
-    .regionLayers[region] = layer;
+    state.regionLayers[region] =
+        layer;
 
-    layer.bindTooltip(feature.properties.prov_ENG || "Unknown");
-    layer.on('click', onRegionClick);
+    layer.bindTooltip(
+        feature.properties.prov_ENG
+    );
+
+    layer.on(
+        'click',
+        onRegionClick
+    );
 }
       
 function createLegend(max) {
@@ -493,102 +541,126 @@ sorted.forEach(r => {
 // 🔹 клик по региону
 // -------------------------
 function onRegionClick(e) {
-    const destinationName = e.target.feature.properties.prov_ENG;
-    const destKey = norm(destinationName);
-    
-    // -------------------------
-    // 1. ТАБЛИЦА (Origin → Destination rows)
-    // -------------------------
-const tableRows = (.migrationIndex[destKey] || [])
-    .map(flow => ({
-        Origin: flow.origin,
-        Number: flow.number
-    }))
-    .sort((a, b) => b.Number - a.Number);
-
-renderTable(tableRows);
-renderTable(rows, mode);
-      const firstCol =
-    mode==="in"
-    ? "Место рождения"
-    : "Место переселения";
-
-    // -------------------------
-    // 2. ПОЛУЧАЕМ FLOWS (Origin → Destination)
-    // -------------------------
-    let flows;
-    let maxNumber;
-    
 
     resetStyles();
     clearValueLabels();
 
-    let maxNumber = 0;
-    if (flows && flows.length) {
-        maxNumber = Math.max(...flows.map(f => f.number || 0));
+    const regionName =
+        e.target.feature.properties.prov_ENG;
+
+    const regionKey =
+        norm(regionName);
+
+    let flows = [];
+
+    if(currentMode === "in"){
+
+        flows =
+            state.migrationIndex[
+                regionKey
+            ] || [];
+
+    }else{
+
+        flows =
+            state.migrationOutIndex[
+                regionKey
+            ] || [];
     }
-if(currentMode==="in"){
 
-    flows =
-        state.migrationIndex[destKey];
+    if(!flows.length){
 
-    ...
-}
-if(currentMode==="out"){
-
-    flows =
-        state.migrationOutIndex[destKey];
-
-    ...
-}
-    // -------------------------
-    // 3. РАСКРАСКА ВСЕХ POLYGONS ПО ORIGIN → DESTINATION
-    // -------------------------
-    if (flows && flows.length) {
-        flows.forEach(flow => {
-            let layer;
-
-if(currentMode==="in"){
-
-    layer =
-        state.regionLayers[
-            flow.origin
-        ];
-
-}else{
-
-    layer =
-        state.regionLayers[
-            flow.destination
-        ];
-}
-            if (!originLayer) return;
-
-            originLayer.setStyle({
-                fillColor: getColor(flow.number, maxNumber),
-                fillOpacity: 0.75,
-                color: '#444',
-                weight: 1
-            });
-
-      //      const center = getSafeCenter(originLayer);
-      //      if (center) {
-      //          createLabel(center, flow.number);
-      //      }
+        e.target.setStyle({
+            fillColor:'green',
+            fillOpacity:0.85,
+            color:'#000',
+            weight:1
         });
+
+        document.getElementById(
+            'tablePanel'
+        ).innerHTML =
+            '<b>Нет данных</b>';
+
+        document.getElementById(
+            'legend'
+        ).innerHTML = '';
+
+        return;
     }
 
-    // -------------------------
-    // 4. ПОДСВЕТКА ВЫБРАННОГО DESTINATION
-    // -------------------------
-    e.target.setStyle({
-        fillColor: 'green',
-        fillOpacity: 0.85,
-        color: '#000',
-        weight: 1
+    const maxNumber =
+        Math.max(
+            ...flows.map(
+                f => f.number
+            )
+        );
+
+    flows.forEach(flow => {
+
+        let layer;
+
+        if(currentMode === "in"){
+
+            layer =
+                state.regionLayers[
+                    flow.origin
+                ];
+
+        }else{
+
+            layer =
+                state.regionLayers[
+                    flow.destination
+                ];
+        }
+
+        if(!layer) return;
+
+        layer.setStyle({
+
+            fillColor:
+                getColor(
+                    flow.number,
+                    maxNumber
+                ),
+
+            fillOpacity:0.8,
+            color:'#444',
+            weight:1
+        });
     });
-      
-    // 🔥 ВОТ СЮДА — ДИНАМИЧЕСКАЯ ЛЕГЕНДА
+
+    e.target.setStyle({
+        fillColor:'green',
+        fillOpacity:0.9,
+        color:'#000',
+        weight:1
+    });
+
+    let tableRows = [];
+
+    if(currentMode === "in"){
+
+        tableRows = flows.map(
+            f => ({
+                Origin:f.origin,
+                Number:f.number
+            })
+        );
+
+    }else{
+
+        tableRows = flows.map(
+            f => ({
+                Origin:f.destination,
+                Number:f.number
+            })
+        );
+    }
+
+    renderTable(tableRows);
+
     createLegend(maxNumber);
 }
 
