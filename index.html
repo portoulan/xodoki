@@ -23,7 +23,7 @@
 
 <div id="modeSwitch">
     <button id="modeBtn">
-        Режим: приток
+        Водворение
     </button>
 </div>
 
@@ -159,9 +159,9 @@ Egor D.   t.me/portoulan
 
 #modeSwitch{
     position:absolute;
-    top:80px;
-    right:10px;
-    z-index:1500;
+    bottom:150px;
+    left:10px;
+    z-index:2000;
 }
 
 #{
@@ -199,8 +199,8 @@ modeBtn.addEventListener('click', () => {
 
     modeBtn.innerText =
         currentMode === "in"
-        ? "Режим: приток"
-        : "Режим: отток";
+        ? "Водворение"
+        : "Исход";
 
     console.log(
         "Mode:",
@@ -221,12 +221,12 @@ modeBtn.addEventListener('click', () => {
 function getTableHeaders(mode) {
     if (mode === "in") {
         return {
-            col1: "Место рождения",
+            col1: "Регионы исхода",
             col2: "Количество прибывших"
         };
     } else {
         return {
-            col1: "Направление оттока",
+            col1: "Регионы водворения",
             col2: "Количество уехавших"
         };
     }
