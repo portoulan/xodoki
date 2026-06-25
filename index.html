@@ -21,6 +21,12 @@
          alt="Russian flag">
 </div>
 
+<div id="modeSwitch">
+    <button id="modeBtn">
+        Режим: приток
+    </button>
+</div>
+
 <div id="map"></div>
 
 <div id="footer">
@@ -150,6 +156,20 @@ Egor D.   t.me/portoulan
     text-shadow: 0 0 3px white;
     white-space: nowrap;
 }
+
+#modeSwitch{
+    position:absolute;
+    top:80px;
+    right:10px;
+    z-index:1500;
+}
+
+#modeBtn{
+    font-size:16px;
+    padding:8px 12px;
+    cursor:pointer;
+}      
+      
 </style>
 
 <script>
@@ -157,12 +177,14 @@ let map;
 
 const state = {
     migrationIndex: {},
+    migrationOutIndex:{},
     regionLayers: {},
     geoData: null,
     csvData: null,
     regionNames: {},
     valueLabels: []
 };
+let currentMode = "in";
 
 // -------------------------
 // 🔹 нормализация строк
@@ -235,6 +257,34 @@ function buildMigrationIndex(rows) {
 
     return index;
 }
+function buildOutIndex(rows){
+
+    const index = {};
+
+    rows.forEach(row=>{
+
+        const origin =
+            norm(row.Origin);
+
+        const destination =
+            norm(row.Destination);
+
+        const number =
+            Number(row.Number);
+
+        if(!index[origin]){
+            index[origin]=[];
+        }
+
+        index[origin].push({
+            destination,
+            number
+        });
+
+    });
+
+    return index;
+}
 
 // -------------------------
 // 🔹 карта
@@ -248,14 +298,42 @@ function initMap() {
 }
 
 function getRegionDisplayName(name) {
-    return state.regionNames[norm(name)] || name;
+    return .regionNames[norm(name)] || name;
 }
+document
+    .getElementById('modeBtn')
+    .addEventListener('click', () => {
+
+        if(currentMode === "in"){
+
+            currentMode = "out";
+
+            modeBtn.innerText =
+                "Режим: отток";
+
+        }else{
+
+            currentMode = "in";
+
+            modeBtn.innerText =
+                "Режим: приток";
+        }
+
+        resetStyles();
+        clearValueLabels();
+
+        document.getElementById('tablePanel')
+            .innerHTML = "";
+
+        document.getElementById('legend')
+            .innerHTML = "";
+    });
 // -------------------------
 // 🔹 очистка labels
 // -------------------------
 function clearValueLabels() {
-    state.valueLabels.forEach(l => l.remove());
-    state.valueLabels = [];
+    .valueLabels.forEach(l => l.remove());
+    .valueLabels = [];
 }
 
 // -------------------------
@@ -280,7 +358,7 @@ function createLabel(latlng, value) {
         interactive: false
     }).addTo(map);
 
-    state.valueLabels.push(marker);
+    .valueLabels.push(marker);
 
     return marker;
 }
@@ -308,7 +386,7 @@ function getColor(value, max) {
 // 🔹 сброс стилей
 // -------------------------
 function resetStyles() {
-    Object.values(state.regionLayers).forEach(layer => {
+    Object.values(.regionLayers).forEach(layer => {
         layer.setStyle({
             color: '#666',
             weight: 1,
@@ -326,7 +404,7 @@ function onEachFeature(feature, layer) {
 
     if (!region) return;
 
-    state.regionLayers[region] = layer;
+    .regionLayers[region] = layer;
 
     layer.bindTooltip(feature.properties.prov_ENG || "Unknown");
     layer.on('click', onRegionClick);
@@ -421,7 +499,7 @@ function onRegionClick(e) {
     // -------------------------
     // 1. ТАБЛИЦА (Origin → Destination rows)
     // -------------------------
-const tableRows = (state.migrationIndex[destKey] || [])
+const tableRows = (.migrationIndex[destKey] || [])
     .map(flow => ({
         Origin: flow.origin,
         Number: flow.number
@@ -429,11 +507,18 @@ const tableRows = (state.migrationIndex[destKey] || [])
     .sort((a, b) => b.Number - a.Number);
 
 renderTable(tableRows);
+renderTable(rows, mode);
+      const firstCol =
+    mode==="in"
+    ? "Место рождения"
+    : "Место переселения";
 
     // -------------------------
     // 2. ПОЛУЧАЕМ FLOWS (Origin → Destination)
     // -------------------------
-    const flows = state.migrationIndex[destKey];
+    let flows;
+    let maxNumber;
+    
 
     resetStyles();
     clearValueLabels();
@@ -442,13 +527,41 @@ renderTable(tableRows);
     if (flows && flows.length) {
         maxNumber = Math.max(...flows.map(f => f.number || 0));
     }
+if(currentMode==="in"){
 
+    flows =
+        state.migrationIndex[destKey];
+
+    ...
+}
+if(currentMode==="out"){
+
+    flows =
+        state.migrationOutIndex[destKey];
+
+    ...
+}
     // -------------------------
     // 3. РАСКРАСКА ВСЕХ POLYGONS ПО ORIGIN → DESTINATION
     // -------------------------
     if (flows && flows.length) {
         flows.forEach(flow => {
-            const originLayer = state.regionLayers[flow.origin];
+            let layer;
+
+if(currentMode==="in"){
+
+    layer =
+        state.regionLayers[
+            flow.origin
+        ];
+
+}else{
+
+    layer =
+        state.regionLayers[
+            flow.destination
+        ];
+}
             if (!originLayer) return;
 
             originLayer.setStyle({
@@ -496,6 +609,7 @@ const [geoData, csvResult, regionResult] = await Promise.all([
         state.csvData = csvResult.data;
 
         state.migrationIndex = buildMigrationIndex(state.csvData);
+        state.migrationOutIndex = buildOutIndex(state.csvData);
         state.regionNames = buildRegionNames(regionResult.data);
 
         L.geoJSON(geoData, {
