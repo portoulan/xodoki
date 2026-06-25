@@ -187,24 +187,36 @@ const state = {
     valueLabels: []
 };
 
-document
-    .getElementById('modeBtn')
-    .addEventListener('click', () => {
+const modeBtn =
+    document.getElementById('modeBtn');
 
-        if(currentMode === "in"){
+modeBtn.addEventListener('click', () => {
 
-            currentMode = "out";
+    currentMode =
+        currentMode === "in"
+        ? "out"
+        : "in";
 
-            modeBtn.innerText =
-                "Режим: отток";
+    modeBtn.innerText =
+        currentMode === "in"
+        ? "Режим: приток"
+        : "Режим: отток";
 
-        }else{
+    console.log(
+        "Mode:",
+        currentMode
+    );
 
-            currentMode = "in";
+    resetStyles();
 
-            modeBtn.innerText =
-                "Режим: приток";
-        }
+    document.getElementById(
+        'tablePanel'
+    ).innerHTML = "";
+
+    document.getElementById(
+        'legend'
+    ).innerHTML = "";
+});
 
 // -------------------------
 // 🔹 нормализация строк
