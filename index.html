@@ -218,6 +218,20 @@ modeBtn.addEventListener('click', () => {
     ).innerHTML = "";
 });
 
+function getTableHeaders(mode) {
+    if (mode === "in") {
+        return {
+            col1: "Место рождения",
+            col2: "Количество прибывших"
+        };
+    } else {
+        return {
+            col1: "Направление оттока",
+            col2: "Количество уехавших"
+        };
+    }
+}
+      
 // -------------------------
 // 🔹 нормализация строк
 // -------------------------
@@ -490,28 +504,29 @@ function renderTable(rows) {
         return;
     }
 
-    // 🔥 сортировка по Number (по убыванию)
+    const headers = getTableHeaders(currentMode);
+
     const sorted = [...rows].sort((a, b) => (b.Number || 0) - (a.Number || 0));
 
     let html = `
         <table border="1" cellspacing="0" cellpadding="4">
             <thead>
                 <tr>
-                    <th>Место рождения</th>
-                    <th>Количество</th>
+                    <th>${headers.col1}</th>
+                    <th>${headers.col2}</th>
                 </tr>
             </thead>
             <tbody>
     `;
 
-sorted.forEach(r => {
-    html += `
-        <tr>
-            <td>${getRegionDisplayName(r.Origin)}</td>
-            <td>${r.Number}</td>
-        </tr>
-    `;
-});
+    sorted.forEach(r => {
+        html += `
+            <tr>
+                <td>${getRegionDisplayName(r.Origin)}</td>
+                <td>${r.Number}</td>
+            </tr>
+        `;
+    });
 
     html += "</tbody></table>";
 
