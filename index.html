@@ -164,7 +164,7 @@ Egor D.   t.me/portoulan
     z-index:1500;
 }
 
-#modeBtn{
+#{
     font-size:16px;
     padding:8px 12px;
     cursor:pointer;
@@ -335,34 +335,7 @@ function getRegionDisplayName(name) {
         norm(name)
     ] || name;
 }
-document
-    .getElementById('modeBtn')
-    .addEventListener('click', () => {
 
-        if(currentMode === "in"){
-
-            currentMode = "out";
-
-            modeBtn.innerText =
-                "Режим: отток";
-
-        }else{
-
-            currentMode = "in";
-
-            modeBtn.innerText =
-                "Режим: приток";
-        }
-
-        resetStyles();
-        clearValueLabels();
-
-        document.getElementById('tablePanel')
-            .innerHTML = "";
-
-        document.getElementById('legend')
-            .innerHTML = "";
-    });
 // -------------------------
 // 🔹 очистка labels
 // -------------------------
