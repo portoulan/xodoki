@@ -33,9 +33,6 @@
     </label>
 </div>
 
-    <span>Отток</span>
-</div>
-
 <div id="map"></div>
 
 <div id="footer">
@@ -202,7 +199,7 @@ const state = {
     geoData: null,
     csvData: null,
     regionNames: {},
-    valueLabels: []
+    valueLabels: [],
     selectedLayer: null
 };
 
@@ -210,18 +207,24 @@ document.querySelectorAll('input[name="mode"]').forEach(radio => {
 
     radio.addEventListener("change", () => {
 
-        currentMode = radio.value;
+currentMode = radio.value;
 
 if (state.selectedLayer) {
-    onRegionClick({
-        target: state.selectedLayer
-    });
-} else {
+
     resetStyles();
     clearValueLabels();
 
-    document.getElementById("tablePanel").innerHTML = "";
-    document.getElementById("legend").innerHTML = "";
+    onRegionClick({
+        target: state.selectedLayer
+    });
+
+} else {
+
+    resetStyles();
+    clearValueLabels();
+
+    tablePanel.innerHTML = "";
+    legend.innerHTML = "";
 }
     });
 
