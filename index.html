@@ -203,6 +203,7 @@ const state = {
     csvData: null,
     regionNames: {},
     valueLabels: []
+    selectedLayer: null
 };
 
 document.querySelectorAll('input[name="mode"]').forEach(radio => {
@@ -211,11 +212,17 @@ document.querySelectorAll('input[name="mode"]').forEach(radio => {
 
         currentMode = radio.value;
 
-        resetStyles();
-        clearValueLabels();
+if (state.selectedLayer) {
+    onRegionClick({
+        target: state.selectedLayer
+    });
+} else {
+    resetStyles();
+    clearValueLabels();
 
-        document.getElementById("tablePanel").innerHTML = "";
-        document.getElementById("legend").innerHTML = "";
+    document.getElementById("tablePanel").innerHTML = "";
+    document.getElementById("legend").innerHTML = "";
+}
     });
 
 });
@@ -540,7 +547,7 @@ function renderTable(rows) {
 // 🔹 клик по региону
 // -------------------------
 function onRegionClick(e) {
-
+    state.selectedLayer = e.target;
     resetStyles();
     clearValueLabels();
 
