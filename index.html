@@ -409,18 +409,35 @@ function createLabel(latlng, value) {
 // 🔹 цвет
 // -------------------------
 function getColor(value, max) {
-    if (!max) return '#B22222';
+
+    if (!max) return "#cccccc";
 
     const k = value / max;
 
-    if(k > 0.8) return '#A60000';
-    if(k > 0.6) return '#D03F10';
-    if(k > 0.4) return '#F5751D';
-    if(k > 0.2) return '#FB973C';
-    if(k > 0.1) return '#F9C571';
-    if(k > 0.03) return '#F8E799';
+    if (currentMode === "in") {
 
-    return '#FFFFE0';
+        // оранжево-красная шкала
+        if(k > 0.8) return '#A60000';
+        if(k > 0.6) return '#D03F10';
+        if(k > 0.4) return '#F5751D';
+        if(k > 0.2) return '#FB973C';
+        if(k > 0.1) return '#F9C571';
+        if(k > 0.03) return '#F8E799';
+
+        return '#FFFFE0';
+
+    } else {
+
+        // синяя шкала
+        if(k > 0.8) return '#08306B';
+        if(k > 0.6) return '#2171B5';
+        if(k > 0.4) return '#4292C6';
+        if(k > 0.2) return '#6BAED6';
+        if(k > 0.1) return '#9ECAE1';
+        if(k > 0.03) return '#C6DBEF';
+
+        return '#EFF3FF';
+    }
 }
 
 
@@ -474,7 +491,8 @@ function createLegend(max) {
         return;
     }
 
-    const classes = [
+    const classes = currentMode === "in"
+    ? [
         { color:'#A60000', from:0.8, to:1.0 },
         { color:'#D03F10', from:0.6, to:0.8 },
         { color:'#F5751D', from:0.4, to:0.6 },
@@ -483,6 +501,15 @@ function createLegend(max) {
         { color:'#F8E799', from:0.03, to:0.1 },
         { color:'#FFFFE0', from:0.0, to:0.03 }
     ];
+        : [
+        { color:'#08306B', from:0.8, to:1.0 },
+        { color:'#2171B5', from:0.6, to:0.8 },
+        { color:'#4292C6', from:0.4, to:0.6 },
+        { color:'#6BAED6', from:0.2, to:0.4 },
+        { color:'#9ECAE1', from:0.1, to:0.2 },
+        { color:'#C6DBEF', from:0.03, to:0.1 },
+        { color:'#EFF3FF', from:0.0, to:0.03 }
+      ];
 
     let html = "<b>Число уроженцев</b>";
 
