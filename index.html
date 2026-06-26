@@ -223,8 +223,8 @@ if (state.selectedLayer) {
     resetStyles();
     clearValueLabels();
 
-    tablePanel.innerHTML = "";
-    legend.innerHTML = "";
+document.getElementById("tablePanel").innerHTML = "";
+document.getElementById("legend").innerHTML = "";
 }
     });
 
@@ -374,6 +374,68 @@ function clearValueLabels() {
     state.valueLabels = [];
 }
 
+function renderRegion(layer) {
+    resetStyles();
+    clearValueLabels();
+
+    const regionName =
+        layer.feature.properties.prov_ENG;
+
+    const regionKey = norm(regionName);
+
+    let flows = currentMode === "in"
+        ? (state.migrationIndex[regionKey] || [])
+        : (state.migrationOutIndex[regionKey] || []);
+
+    if (!flows.length) {
+        layer.setStyle({
+            fillColor: 'green',
+            fillOpacity: 0.85,
+            color: '#000',
+            weight: 1
+        });
+
+        document.getElementById('tablePanel').innerHTML = '<b>Нет данных</b>';
+        document.getElementById('legend').innerHTML = '';
+        return;
+    }
+
+    const maxNumber = Math.max(...flows.map(f => f.number));
+
+    flows.forEach(flow => {
+
+        const targetKey = currentMode === "in"
+            ? flow.origin
+            : flow.destination;
+
+        const targetLayer = state.regionLayers[targetKey];
+
+        if (!targetLayer) return;
+
+        targetLayer.setStyle({
+            fillColor: getColor(flow.number, maxNumber),
+            fillOpacity: 0.8,
+            color: '#444',
+            weight: 1
+        });
+    });
+
+    layer.setStyle({
+        fillColor: 'green',
+        fillOpacity: 0.9,
+        color: '#000',
+        weight: 1
+    });
+
+    const tableRows = flows.map(f => ({
+        Origin: currentMode === "in" ? f.origin : f.destination,
+        Number: f.number
+    }));
+
+    renderTable(tableRows);
+    createLegend(maxNumber);
+}      
+      
 // -------------------------
 // 🔹 безопасный центр
 // -------------------------
@@ -578,126 +640,7 @@ function renderTable(rows) {
 // -------------------------
 function onRegionClick(e) {
     state.selectedLayer = e.target;
-    resetStyles();
-    clearValueLabels();
-
-    const regionName =
-        e.target.feature.properties.prov_ENG;
-
-    const regionKey =
-        norm(regionName);
-
-    let flows = [];
-
-    if(currentMode === "in"){
-
-        flows =
-            state.migrationIndex[
-                regionKey
-            ] || [];
-
-    }else{
-
-        flows =
-            state.migrationOutIndex[
-                regionKey
-            ] || [];
-    }
-
-    if(!flows.length){
-
-        e.target.setStyle({
-            fillColor:'green',
-            fillOpacity:0.85,
-            color:'#000',
-            weight:1
-        });
-
-        document.getElementById(
-            'tablePanel'
-        ).innerHTML =
-            '<b>Нет данных</b>';
-
-        document.getElementById(
-            'legend'
-        ).innerHTML = '';
-
-        return;
-    }
-
-    const maxNumber =
-        Math.max(
-            ...flows.map(
-                f => f.number
-            )
-        );
-
-    flows.forEach(flow => {
-
-        let layer;
-
-        if(currentMode === "in"){
-
-            layer =
-                state.regionLayers[
-                    flow.origin
-                ];
-
-        }else{
-
-            layer =
-                state.regionLayers[
-                    flow.destination
-                ];
-        }
-
-        if(!layer) return;
-
-        layer.setStyle({
-
-            fillColor:
-                getColor(
-                    flow.number,
-                    maxNumber
-                ),
-
-            fillOpacity:0.8,
-            color:'#444',
-            weight:1
-        });
-    });
-
-    e.target.setStyle({
-        fillColor:'green',
-        fillOpacity:0.9,
-        color:'#000',
-        weight:1
-    });
-
-    let tableRows = [];
-
-    if(currentMode === "in"){
-
-        tableRows = flows.map(
-            f => ({
-                Origin:f.origin,
-                Number:f.number
-            })
-        );
-
-    }else{
-
-        tableRows = flows.map(
-            f => ({
-                Origin:f.destination,
-                Number:f.number
-            })
-        );
-    }
-
-    renderTable(tableRows);
-
-    createLegend(maxNumber);
+    renderRegion(e.target);
 }
 
 // -------------------------
