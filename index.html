@@ -651,13 +651,17 @@ sorted.forEach(r => {
 });
 
     // 🔥 итоговая строка
-// итоговая строка
-html += `
-    <tr style="font-weight:bold; background:#f0f0f0;">
-        <td>Всего</td>
-        <td>${total.toLocaleString('ru-RU')}</td>
-    </tr>
-`;
+    html += `
+        <tr style="font-weight:bold; background:#f0f0f0;">
+            <td>Всего</td>
+            <td>${total.toLocaleString('ru-RU')}</td>
+        </tr>
+    `;
+
+    html += "</tbody></table>";
+
+    container.innerHTML = html;
+}
       
      
 // -------------------------
