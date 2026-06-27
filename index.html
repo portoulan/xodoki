@@ -165,25 +165,32 @@ Egor D.   t.me/portoulan
 
 #modeSwitch{
     position:absolute;
-    top:500px;
+    top:450px;
     left:25px;
     z-index:1500;
 
     background:rgba(255,255,255,.9);
-    padding:10px;
-    border-radius:8px;
+    padding:16px;
+    border-radius:12px;
 
     display:flex;
     flex-direction:column;
-    gap:8px;
+    gap:12px;
 
     font-family:sans-serif;
     font-size:22px;
 }
 
 #modeSwitch label{
+    display:flex;
+    align-items:center;
+    gap:12px;
     cursor:pointer;
-}    
+} 
+
+#modeSwitch input[type="radio"]{
+    transform:scale(1.8);
+}
       
 </style>
 
