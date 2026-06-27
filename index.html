@@ -36,7 +36,7 @@
 <div id="map"></div>
 
 <div id="footer">
-Egor D.   t.me/portoulan
+Egor D.   t.me/portoulann
 </div>
 
 <div id="tablePanel"></div>
@@ -629,16 +629,26 @@ function renderTable(rows) {
             <tbody>
     `;
 
-    sorted.forEach(r => {
-        total += (r.Number || 0);
+sorted.forEach(r => {
 
-        html += `
-            <tr>
-                <td>${getRegionDisplayName(r.Origin)}</td>
-                <td>${r.Number}</td>
-            </tr>
-        `;
-    });
+    const name = getRegionDisplayName(r.Origin);
+
+    html += `
+        <tr>
+            <td>${name}</td>
+            <td>${r.Number}</td>
+        </tr>
+    `;
+
+    const lower = name.toLowerCase();
+
+    if (
+        lower.includes("губерния") ||
+        lower.includes("область")
+    ) {
+        total += (r.Number || 0);
+    }
+});
 
     // 🔥 итоговая строка
     html += `
