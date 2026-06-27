@@ -616,6 +616,8 @@ function renderTable(rows) {
 
     const sorted = [...rows].sort((a, b) => (b.Number || 0) - (a.Number || 0));
 
+    let total = 0;
+
     let html = `
         <table border="1" cellspacing="0" cellpadding="4">
             <thead>
@@ -628,6 +630,8 @@ function renderTable(rows) {
     `;
 
     sorted.forEach(r => {
+        total += (r.Number || 0);
+
         html += `
             <tr>
                 <td>${getRegionDisplayName(r.Origin)}</td>
@@ -635,6 +639,14 @@ function renderTable(rows) {
             </tr>
         `;
     });
+
+    // 🔥 итоговая строка
+    html += `
+        <tr style="font-weight:bold; background:#f0f0f0;">
+            <td>Всего</td>
+            <td>${total.toLocaleString('ru-RU')}</td>
+        </tr>
+    `;
 
     html += "</tbody></table>";
 
