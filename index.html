@@ -616,8 +616,6 @@ function renderTable(rows) {
 
     const sorted = [...rows].sort((a, b) => (b.Number || 0) - (a.Number || 0));
 
-    let total = 0;
-
     let html = `
         <table border="1" cellspacing="0" cellpadding="4">
             <thead>
@@ -629,34 +627,14 @@ function renderTable(rows) {
             <tbody>
     `;
 
-sorted.forEach(r => {
-
-    const name = getRegionDisplayName(r.Origin);
-
-    html += `
-        <tr>
-            <td>${name}</td>
-            <td>${r.Number}</td>
-        </tr>
-    `;
-
-    const lower = name.toLowerCase();
-
-    if (
-        lower.includes("губерния") ||
-        lower.includes("область")
-    ) {
-        total += (r.Number || 0);
-    }
-});
-
-    // 🔥 итоговая строка
-    html += `
-        <tr style="font-weight:bold; background:#f0f0f0;">
-            <td>Всего</td>
-            <td>${total.toLocaleString('ru-RU')}</td>
-        </tr>
-    `;
+    sorted.forEach(r => {
+        html += `
+            <tr>
+                <td>${getRegionDisplayName(r.Origin)}</td>
+                <td>${r.Number}</td>
+            </tr>
+        `;
+    });
 
     html += "</tbody></table>";
 
